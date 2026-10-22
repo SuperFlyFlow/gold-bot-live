@@ -10,6 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Gold Bot">
+<script>try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -26,12 +27,18 @@
     --num: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
     --r: 10px; color-scheme: light;
   }
+  /* Theme: follows the phone unless the header button pins light or dark (data-theme on <html>). */
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
       --bg: #12110e; --panel: #1b1a16; --line: #2e2b24; --fg: #ece8dd; --muted: #a39d8e;
       --gold: #e0b34a; --gold-soft: rgba(224, 179, 74, .16); --up: #5cc48d; --down: #ef7a72; --ref: #6f6a5d;
       color-scheme: dark;
     }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12110e; --panel: #1b1a16; --line: #2e2b24; --fg: #ece8dd; --muted: #a39d8e;
+    --gold: #e0b34a; --gold-soft: rgba(224, 179, 74, .16); --up: #5cc48d; --down: #ef7a72; --ref: #6f6a5d;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
@@ -51,7 +58,8 @@
   .pill[data-s="off"] { color: var(--down); } .pill[data-s="off"] i { background: var(--down); }
   @keyframes pulse { 50% { opacity: .35; } }
   @media (prefers-reduced-motion: reduce) { .pill i { animation: none !important; } }
-  .link { margin-left: auto; font: inherit; font-size: .8rem; background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 4px; }
+  .actions { margin-left: auto; display: flex; gap: 4px; }
+  .link { font: inherit; font-size: .8rem; background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 4px; }
   .sub { margin: 0; color: var(--muted); font-size: .82rem; }
   .take { margin: 0; font-size: 1rem; max-width: 62ch; }
   .notice { border: 1px solid var(--line); border-left: 3px solid var(--gold); background: var(--panel); border-radius: var(--r); padding: 10px 14px; font-size: .88rem; }
@@ -95,6 +103,29 @@
   .btn[disabled] { opacity: .6; cursor: default; }
   .msg { margin: 0; font-size: .85rem; }
   .msg.err { color: var(--down); }
+  /* phones: tighter spacing, account tiles two-up, headings and figures scaled down */
+  @media (max-width: 560px) {
+    body { font-size: 14px; }
+    .wrap { gap: 16px; padding-block: 12px 32px; padding-inline: max(14px, env(safe-area-inset-left, 0px)) max(14px, env(safe-area-inset-right, 0px)); }
+    h1 { font-size: 1.4rem; }
+    .take { font-size: .92rem; }
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .tile { padding: 12px; }
+    .big { font-size: 1.35rem; }
+    .cards { gap: 10px; }
+    .card { padding: 12px; gap: 8px; }
+    .card-h .note { flex-basis: 100%; }
+    .stats { gap: 8px 6px; }
+    .stat .v { font-size: .85rem; }
+    .chart { min-height: 180px; }
+    .tablewrap { margin-inline: -12px; padding-inline: 12px; max-height: 22rem; }
+    th, td { padding: 6px; }
+    .link { min-height: 36px; padding: 6px 8px; }
+  }
+  @media (max-width: 360px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .big { font-size: 1.15rem; }
+  }
 </style>
 </head>
 <body>
@@ -117,7 +148,7 @@
     <div class="top">
       <h1>Gold Bot <span>Live</span></h1>
       <span class="pill" id="status"><i></i><span id="status-t">Connecting</span></span>
-      <button class="link" id="signout" type="button">Sign out</button>
+      <span class="actions"><button class="link" id="theme" type="button">Theme: Auto</button><button class="link" id="signout" type="button">Sign out</button></span>
     </div>
     <p class="sub">Exness demo · <span id="age">waiting for the first report</span> · updates every 15 s · South African time</p>
     <p class="take" id="take">Loading the latest account report from the bot.</p>

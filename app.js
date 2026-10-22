@@ -270,7 +270,26 @@
 
   let resizeT;
   addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => last && render(last), 150); });
-  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => last && render(last));
+
+  // ------------------------------------------------------------------ theme: Auto (follow the phone) → Light → Dark
+  const THEMES = ['auto', 'light', 'dark'];
+  const NAMES = { auto: 'Auto', light: 'Light', dark: 'Dark' };
+  function applyTheme(t) {
+    const root = document.documentElement;
+    if (t === 'auto') delete root.dataset.theme; else root.dataset.theme = t;
+    $('theme').textContent = 'Theme: ' + NAMES[t];
+    $('theme').setAttribute('aria-label', `Colour theme: ${NAMES[t]}. Tap to change.`);
+    document.querySelector('meta[name="theme-color"]').content = css('--bg');
+    if (last) render(last);
+  }
+  let theme = document.documentElement.dataset.theme || 'auto';
+  $('theme').addEventListener('click', () => {
+    theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+    try { if (theme === 'auto') localStorage.removeItem('theme'); else localStorage.setItem('theme', theme); } catch (e) {}
+    applyTheme(theme);
+  });
+  applyTheme(theme);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => applyTheme(theme));
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
