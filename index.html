@@ -60,6 +60,12 @@
   @media (prefers-reduced-motion: reduce) { .pill i { animation: none !important; } }
   .actions { margin-left: auto; display: flex; gap: 4px; }
   .link { font: inherit; font-size: .8rem; background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 4px; }
+  .theme { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: .8rem; color: var(--muted); background: var(--panel);
+           border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px 4px 8px; cursor: pointer; }
+  .theme:hover { color: var(--fg); border-color: var(--gold); }
+  .theme:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .theme svg { width: 16px; height: 16px; flex: none; color: var(--gold); }
+  .actions { align-items: center; }
   .sub { margin: 0; color: var(--muted); font-size: .82rem; }
   .take { margin: 0; font-size: 1rem; max-width: 62ch; }
   .notice { border: 1px solid var(--line); border-left: 3px solid var(--gold); background: var(--panel); border-radius: var(--r); padding: 10px 14px; font-size: .88rem; }
@@ -121,6 +127,7 @@
     .tablewrap { margin-inline: -12px; padding-inline: 12px; max-height: 22rem; }
     th, td { padding: 6px; }
     .link { min-height: 36px; padding: 6px 8px; }
+    .theme { min-height: 34px; }
   }
   @media (max-width: 360px) {
     .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -148,7 +155,7 @@
     <div class="top">
       <h1>Gold Bot <span>Live</span></h1>
       <span class="pill" id="status"><i></i><span id="status-t">Connecting</span></span>
-      <span class="actions"><button class="link" id="theme" type="button">Theme: Auto</button><button class="link" id="signout" type="button">Sign out</button></span>
+      <span class="actions"><button class="theme" id="theme" type="button" title="Colour theme"></button><button class="link" id="signout" type="button">Sign out</button></span>
     </div>
     <p class="sub">Exness demo · <span id="age">waiting for the first report</span> · updates every 15 s · South African time</p>
     <p class="take" id="take">Loading the latest account report from the bot.</p>
@@ -200,6 +207,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-<script src="app.js"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
