@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gold Bot Live</title>
+<meta name="description" content="Live account and trades for the gold bot demo.">
+<meta name="theme-color" content="#12110e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gold Bot">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: a single trading-desk column — status strip, headline figures, strategy cards, then chart and ledgers. */
+  :root {
+    --bg: #f5f4f0; --panel: #ffffff; --line: #e2dfd6; --fg: #1d1b16; --muted: #6d685c;
+    --gold: #a8780f; --gold-soft: rgba(168, 120, 15, .14); --up: #1f7a4d; --down: #b3261e; --ref: #9a9486;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --num: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --r: 10px; color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12110e; --panel: #1b1a16; --line: #2e2b24; --fg: #ece8dd; --muted: #a39d8e;
+      --gold: #e0b34a; --gold-soft: rgba(224, 179, 74, .16); --up: #5cc48d; --down: #ef7a72; --ref: #6f6a5d;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px;
+         padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 960px; margin-inline: auto; padding-inline: max(16px, env(safe-area-inset-left, 0px)); padding-block: 18px 40px; display: grid; gap: 20px; }
+  .num { font-family: var(--num); font-variant-numeric: tabular-nums; }
+  .up { color: var(--up); } .down { color: var(--down); }
+  header { display: grid; gap: 6px; }
+  .top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: 1.75rem; margin: 0; letter-spacing: -0.01em; }
+  h1 span { color: var(--gold); }
+  .pill { display: inline-flex; align-items: center; gap: 7px; font-size: .8rem; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--panel); }
+  .pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .pill[data-s="on"] { color: var(--up); } .pill[data-s="on"] i { background: var(--up); animation: pulse 2s ease-in-out infinite; }
+  .pill[data-s="off"] { color: var(--down); } .pill[data-s="off"] i { background: var(--down); }
+  @keyframes pulse { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .pill i { animation: none !important; } }
+  .link { margin-left: auto; font: inherit; font-size: .8rem; background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 4px; }
+  .sub { margin: 0; color: var(--muted); font-size: .82rem; }
+  .take { margin: 0; font-size: 1rem; max-width: 62ch; }
+  .notice { border: 1px solid var(--line); border-left: 3px solid var(--gold); background: var(--panel); border-radius: var(--r); padding: 10px 14px; font-size: .88rem; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 4px; min-width: 0; }
+  .label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .big { font-family: var(--display); font-weight: 400; font-size: 1.85rem; line-height: 1.1; overflow-wrap: anywhere; }
+  .tile.hero { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold-soft); }
+  .note { font-size: .8rem; color: var(--muted); }
+  h2 { font-size: 1rem; font-weight: 600; margin: 0; }
+  section { display: grid; gap: 10px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 10px; min-width: 0; align-content: start; }
+  .card-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .card-h b { font-weight: 600; }
+  .chip { font-size: .72rem; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 8px; }
+  .stat { display: grid; gap: 2px; min-width: 0; }
+  .stat .v { font-family: var(--num); font-size: .92rem; overflow-wrap: anywhere; }
+  .chart { position: relative; min-height: 220px; }
+  .chart svg { display: block; width: 100%; height: auto; }
+  .tip { position: absolute; top: 0; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.12); padding: 6px 10px; font-size: .78rem; white-space: nowrap; }
+  .tip .when { color: var(--muted); }
+  .tablewrap { overflow-x: auto; max-height: 26rem; overflow-y: auto; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { position: sticky; top: 0; background: var(--panel); color: var(--muted); font-weight: 500; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; }
+  td.r, th.r { text-align: right; }
+  td.r { font-family: var(--num); }
+  .empty { margin: 0; color: var(--muted); font-size: .85rem; }
+  .side { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); }
+  .stale { opacity: .55; transition: opacity .4s; }
+  footer { color: var(--muted); font-size: .75rem; }
+  /* sign-in */
+  .auth { max-width: 380px; margin: 12vh auto 0; padding-inline: 16px; display: grid; gap: 16px; }
+  .auth .card { gap: 12px; }
+  .auth label { display: grid; gap: 6px; font-size: .85rem; color: var(--muted); }
+  .auth input { font: inherit; font-size: 16px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+  .auth input:focus-visible, .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .btn { font: inherit; font-weight: 600; padding: 11px 14px; border-radius: 8px; border: 1px solid var(--gold); background: var(--gold); color: #1b1505; cursor: pointer; }
+  .btn[disabled] { opacity: .6; cursor: default; }
+  .msg { margin: 0; font-size: .85rem; }
+  .msg.err { color: var(--down); }
+</style>
+</head>
+<body>
+
+<main class="auth" id="auth" hidden>
+  <h1>Gold Bot <span>Live</span></h1>
+  <form class="card" id="auth-form" novalidate>
+    <b id="auth-title">Sign in</b>
+    <label for="email">Email<input id="email" type="email" autocomplete="username" required></label>
+    <label for="password">Password<input id="password" type="password" autocomplete="current-password" minlength="8" required></label>
+    <button class="btn" id="auth-go" type="submit">Sign in</button>
+    <p class="msg" id="auth-msg" role="status"></p>
+    <button class="link" id="auth-switch" type="button" style="margin:0;justify-self:start">New here? Create your account</button>
+  </form>
+  <p class="note">Only accounts on the bot owner’s allow-list can see data.</p>
+</main>
+
+<div class="wrap" id="app" hidden>
+  <header>
+    <div class="top">
+      <h1>Gold Bot <span>Live</span></h1>
+      <span class="pill" id="status"><i></i><span id="status-t">Connecting</span></span>
+      <button class="link" id="signout" type="button">Sign out</button>
+    </div>
+    <p class="sub">Exness demo · <span id="age">waiting for the first report</span> · updates every 15 s · South African time</p>
+    <p class="take" id="take">Loading the latest account report from the bot.</p>
+  </header>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <section class="tiles" aria-label="Account">
+    <div class="tile hero"><span class="label">Equity</span><span class="big num" id="t-equity">—</span><span class="note">Open P&amp;L <span class="num" id="t-open">—</span></span></div>
+    <div class="tile"><span class="label">Today</span><span class="big num" id="t-today">—</span><span class="note">Since 00:00, incl. open trades</span></div>
+    <div class="tile"><span class="label">Since start</span><span class="big num" id="t-growth">—</span><span class="note">From <span class="num" id="t-start">—</span> on <span id="t-since">—</span></span></div>
+    <div class="tile"><span class="label">Balance</span><span class="big num" id="t-balance">—</span><span class="note">Free margin <span class="num" id="t-free">—</span></span></div>
+  </section>
+
+  <section id="strategies">
+    <h2>Strategies</h2>
+    <div class="cards" id="cards"><p class="empty">Strategy results appear with the first report.</p></div>
+  </section>
+
+  <section class="card" id="curve">
+    <div class="card-h"><b>Equity curve</b><span class="note">Every 15 minutes · dashed line is closed balance</span></div>
+    <div class="chart" id="eq-chart"></div>
+  </section>
+
+  <section class="card" id="open">
+    <div class="card-h"><b>Open positions</b><span class="note">A Gold Ultimate Edge trade is two halves: bank and runner</span></div>
+    <p class="empty" id="pos-empty">No open trades right now.</p>
+    <div class="tablewrap"><table id="pos" hidden>
+      <thead><tr><th>Strategy</th><th>Side</th><th>Leg</th><th class="r">Lots</th><th class="r">Entry</th><th class="r">Now</th><th class="r">Stop</th><th class="r">Target</th><th class="r">P&amp;L</th></tr></thead>
+      <tbody></tbody></table></div>
+  </section>
+
+  <section class="card" id="daily">
+    <div class="card-h"><b>Daily P&amp;L</b><span class="note">Closed trades by day</span></div>
+    <p class="empty" id="daily-empty" hidden>No closed trades yet.</p>
+    <div class="chart" id="daily-chart"></div>
+  </section>
+
+  <section class="card" id="closed">
+    <div class="card-h"><b>Closed trades</b><span class="note">Newest first · each half of a gold trade is its own row</span></div>
+    <p class="empty" id="tr-empty" hidden>No closed trades since the test started.</p>
+    <div class="tablewrap"><table id="tr" hidden>
+      <thead><tr><th>Closed</th><th>Strategy</th><th>Side</th><th class="r">Lots</th><th class="r">Entry</th><th class="r">Exit</th><th class="r">Mins</th><th class="r">Net</th></tr></thead>
+      <tbody></tbody></table></div>
+  </section>
+
+  <footer>The bot reports every minute; this app checks for a new report every 15 seconds while it’s open.</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
