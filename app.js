@@ -116,9 +116,9 @@
       set('t-start', usd.format(a.start_balance));
       set('t-since', since);
       set('t-balance', usd.format(a.balance));
-      set('t-free', usd.format(a.free_margin ?? a.equity));
+      set('t-free', usd.format(a.broker_equity ?? a.free_margin ?? a.equity));
       const open = d.positions.length;
-      $('take').textContent = `Equity ${usd.format(a.equity)}, ${signed(a.growth)} (${pct(a.growth_pct)}) since ${since}. ` +
+      $('take').textContent = `Bot-only equity ${usd.format(a.equity)}, ${signed(a.growth)} (${pct(a.growth_pct)}) since ${since}. ` +
         (open ? `${open} position${open > 1 ? 's' : ''} open, ${signed(a.open_pnl)} right now.` : 'No trades open right now.');
     }
     renderCards(d.systems);

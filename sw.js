@@ -1,6 +1,6 @@
 // Gold Bot Live service worker: keeps the app's own files for a fast, installable start.
 // Network first (so updates arrive), cache as the fallback. Supabase and other hosts are never cached.
-const CACHE = 'gold-bot-live-v2';
+const CACHE = 'gold-bot-live-v3';
 const SHELL = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
